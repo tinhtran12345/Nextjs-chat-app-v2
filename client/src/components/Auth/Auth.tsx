@@ -4,6 +4,9 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 import * as React from "react";
 import logoGoogle from "../../../public/images/googlelogo.png";
+import userOperations from "../../graphql/operations/user";
+import { useMutation } from "@apollo/client";
+import { CreateUsername, CreateUsernameVariables } from "@/utils/types";
 
 interface IAuthProps {
     session: Session | null;
@@ -15,9 +18,16 @@ const Auth: React.FunctionComponent<IAuthProps> = ({
     reloadSession,
 }) => {
     const [username, setUsername] = React.useState("");
+    const [createUsername, { data, loading, error }] = useMutation<
+        CreateUsername,
+        CreateUsernameVariables
+    >(userOperations.Mutations.createUsername);
+
     const handleSubmit = async () => {
+        if (!username) return;
         try {
             // Create username mutation to send our username to API
+            await createUsername({ variables: { username } });
         } catch (error) {
             console.log("Handle submit error: ", error);
         }
